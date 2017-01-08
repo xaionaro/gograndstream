@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/droundy/goopt"
-	"github.com/xaionaro/gograndstream/gograndstream"
+	"github.com/xaionaro/gograndstream/grandstream"
 	"os"
 	"strings"
 )
@@ -53,34 +53,34 @@ func main() {
 		os.Exit(-1)
 	}
 
-	var configuration map[string]string
+	var configuration map[string]map[string]map[string]string
 	switch from {
-		case FORMAT_GRANDSTREAM_PCODES:
-			var err error
-			configuration, err = gograndstream.ParseFile(os.Stdin)
-			if err != nil {
-				panic(err)
-			}
-			break
-		case FORMAT_JSON:
-			decoder := json.NewDecoder(os.Stdin)
-			decoder.Decode(&configuration)
-			break
+	case FORMAT_GRANDSTREAM_PCODES:
+		var err error
+		configuration, err = grandstream.ParseFile(os.Stdin)
+		if err != nil {
+			panic(err)
+		}
+		break
+	case FORMAT_JSON:
+		decoder := json.NewDecoder(os.Stdin)
+		decoder.Decode(&configuration)
+		break
 	}
 
 	switch to {
-		case FORMAT_GRANDSTREAM_PCODES:
-			err := gograndstream.WriteToFile(os.Stdout, configuration)
-			if err != nil {
-				panic(err)
-			}
-			break
-		case FORMAT_JSON:
-			b, err := json.Marshal(configuration)
-			if err != nil {
-				panic(err)
-			}
-			os.Stdout.Write(b)
-			break
+	case FORMAT_GRANDSTREAM_PCODES:
+		err := grandstream.WriteToFile(os.Stdout, configuration)
+		if err != nil {
+			panic(err)
+		}
+		break
+	case FORMAT_JSON:
+		b, err := json.Marshal(configuration)
+		if err != nil {
+			panic(err)
+		}
+		os.Stdout.Write(b)
+		break
 	}
 }
