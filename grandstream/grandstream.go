@@ -15,7 +15,7 @@ type keyCode struct {
 }
 
 var keyCodes = map[int]keyCode{
-// phone-builtin speed-dial buttons
+	// phone-builtin speed-dial buttons
 	0:  keyCode{301, 302, 303},
 	1:  keyCode{304, 305, 306},
 	2:  keyCode{307, 308, 309},
@@ -35,7 +35,7 @@ var keyCodes = map[int]keyCode{
 	16: keyCode{390, 391, 392},
 	17: keyCode{394, 395, 396},
 
-// 1st extension panel
+	// 1st extension panel
 	1024 + 0:  keyCode{6201, 6401, 6601},
 	1024 + 1:  keyCode{6202, 6402, 6602},
 	1024 + 2:  keyCode{6203, 6403, 6603},
@@ -93,7 +93,7 @@ var keyCodes = map[int]keyCode{
 	1024 + 54: keyCode{6255, 6455, 6655},
 	1024 + 55: keyCode{6256, 6456, 6656},
 
-// 2nd extension panel
+	// 2nd extension panel
 	2048 + 0:  keyCode{6257, 6457, 6657},
 	2048 + 1:  keyCode{6258, 6458, 6658},
 	2048 + 2:  keyCode{6259, 6459, 6659},
@@ -153,13 +153,13 @@ var keyCodes = map[int]keyCode{
 }
 
 type fullEntryName struct {
-	CategoryName string
+	CategoryName    string
 	SubcategoryName string
-	EntryName string
+	EntryName       string
 }
 
 func ParseFile(in io.Reader) (map[string]map[string]map[string]string, error) {
-	reader:= bufio.NewReader(in)
+	reader := bufio.NewReader(in)
 	entryNameMap := make(map[int]fullEntryName)
 	for keyId, keyCode := range keyCodes {
 		extensionModuleId := int(keyId / 1024)
@@ -171,11 +171,11 @@ func ParseFile(in io.Reader) (map[string]map[string]map[string]string, error) {
 			categoryName = fmt.Sprintf("ExtensionModule%vSpeedDialButtons", extensionModuleId)
 		}
 
-		subcategoryName := fmt.Sprintf("SpeedDialButton%v", keyId % 1024)
-		
+		subcategoryName := fmt.Sprintf("SpeedDialButton%v", keyId%1024)
+
 		entryNameMap[keyCode.Account] = fullEntryName{categoryName, subcategoryName, "Account"}
-		entryNameMap[keyCode.Name   ] = fullEntryName{categoryName, subcategoryName, "Name"   }
-		entryNameMap[keyCode.UserId ] = fullEntryName{categoryName, subcategoryName, "UserId" }
+		entryNameMap[keyCode.Name] = fullEntryName{categoryName, subcategoryName, "Name"}
+		entryNameMap[keyCode.UserId] = fullEntryName{categoryName, subcategoryName, "UserId"}
 	}
 
 	result := make(map[string]map[string]map[string]string)
