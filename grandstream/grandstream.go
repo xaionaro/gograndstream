@@ -3,7 +3,7 @@ package grandstream
 import (
 	"bufio"
 	"fmt"
-	"os"
+	"io"
 	"strconv"
 	"strings"
 )
@@ -158,7 +158,8 @@ type fullEntryName struct {
 	EntryName string
 }
 
-func ParseFile(in *os.File) (map[string]map[string]map[string]string, error) {
+func ParseFile(in io.Reader) (map[string]map[string]map[string]string, error) {
+	reader:= bufio.NewReader(in)
 	entryNameMap := make(map[int]fullEntryName)
 	for keyId, keyCode := range keyCodes {
 		extensionModuleId := int(keyId / 1024)
@@ -178,8 +179,6 @@ func ParseFile(in *os.File) (map[string]map[string]map[string]string, error) {
 	}
 
 	result := make(map[string]map[string]map[string]string)
-
-	reader := bufio.NewReader(in)
 
 	for {
 		lineBytes, isPrefix, err := reader.ReadLine()
@@ -220,6 +219,6 @@ func ParseFile(in *os.File) (map[string]map[string]map[string]string, error) {
 
 	return result, nil
 }
-func WriteToFile(in *os.File, configuration map[string]map[string]map[string]string) error {
+func WriteToFile(writer io.Writer, configuration map[string]map[string]map[string]string) error {
 	return nil
 }
