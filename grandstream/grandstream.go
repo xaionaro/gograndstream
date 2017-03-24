@@ -224,7 +224,7 @@ func configEntryToPCode(categoryName, subcategoryName, entryName string) (pCode 
 	if strings.HasSuffix(categoryName, "SpeedDialButtons") {
 		expansionModuleId := 0
 		if strings.HasPrefix(categoryName, "ExtensionModule") {
-			expansionModuleIdString := categoryName[len("SpeedDialButtons") : len(categoryName)-len("SpeedDialButtonsExtensionModule")]
+			expansionModuleIdString := categoryName[len("SpeedDialButtons")-1 : len(categoryName)-len("ExtensionModule")-1]
 			expansionModuleId, err = strconv.Atoi(expansionModuleIdString)
 			if err != nil {
 				return
@@ -236,8 +236,13 @@ func configEntryToPCode(categoryName, subcategoryName, entryName string) (pCode 
 			return
 		}
 
+		buttonIdStr := subcategoryName[len("SpeedDialButton"):]
+
 		var buttonId int
-		buttonId, err = strconv.Atoi(subcategoryName[len("SpeedDialButton"):])
+		buttonId, err = strconv.Atoi(buttonIdStr)
+		if err != nil {
+			return
+		}
 
 		fullButtonId := buttonId + expansionModuleId*1024
 
@@ -278,7 +283,7 @@ func WriteToFile(writer io.Writer, configuration map[string]map[string]map[strin
 				if err != nil {
 					return err
 				}
-				fmt.Fprintf(writer, "P%d=%v\n", writer, pCode, stripChars(value, "=\n\r&"))
+				fmt.Fprintf(writer, "P%d=%v\n", pCode, stripChars(value, "=\n\r&"))
 			}
 		}
 	}
