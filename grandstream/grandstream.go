@@ -219,6 +219,68 @@ func ParseFile(in io.Reader) (map[string]map[string]map[string]string, error) {
 
 	return result, nil
 }
+
+func configEntryToPCode(categoryName, subcategoryName, entryName string) (pCode int, err error) {
+	if strings.HasSuffix(categoryName, "SpeedDialButtons") {
+		expansionModuleId := 0
+		if strings.HasPrefix(categoryName, "ExtensionModule") {
+			expansionModuleIdString := categoryName[len("SpeedDialButtons") : len(categoryName)-len("SpeedDialButtonsExtensionModule")]
+			expansionModuleId, err = strconv.Atoi(expansionModuleIdString)
+			if err != nil {
+				return
+			}
+		}
+
+		if !strings.HasPrefix(subcategoryName, "SpeedDialButton") {
+			err = fmt.Errorf("Unknown subcategory name: \"%v\"", subcategoryName)
+			return
+		}
+
+		var buttonId int
+		buttonId, err = strconv.Atoi(subcategoryName[len("SpeedDialButton"):])
+
+		fullButtonId := buttonId + expansionModuleId*1024
+
+		buttonPCodes := keyCodes[fullButtonId]
+
+		switch entryName {
+		case "Account":
+			return buttonPCodes.Account, nil
+		case "Name":
+			return buttonPCodes.Name, nil
+		case "UserId":
+			return buttonPCodes.UserId, nil
+		default:
+			return -1, fmt.Errorf("Unknown entryName: \"%v\" (for category/subcategory: %v/%v)", entryName, categoryName, subcategoryName)
+		}
+
+		return
+	}
+
+	err = fmt.Errorf("Unknown categoryName: \"%v\"", categoryName)
+	return
+}
+
+func stripChars(str, chr string) string {
+	return strings.Map(func(r rune) rune {
+		if strings.IndexRune(chr, r) < 0 {
+			return r
+		}
+		return -1
+	}, str)
+}
+
 func WriteToFile(writer io.Writer, configuration map[string]map[string]map[string]string) error {
+	for categoryName, category := range configuration {
+		for subcategoryName, subcategory := range category {
+			for entryName, value := range subcategory {
+				pCode, err := configEntryToPCode(categoryName, subcategoryName, entryName)
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(writer, "P%d=%v\n", writer, pCode, stripChars(value, "=\n\r&"))
+			}
+		}
+	}
 	return nil
 }
